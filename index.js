@@ -1,7 +1,11 @@
+#!/usr/bin/env node
+'use strict'
+
 const git = require('simple-git')(process.cwd())
 const getopts = require('getopts')
 const fs = require('fs')
 const path = require('path')
+
 const options = getopts(process.argv.slice(2), {
   alias: {
     help: 'h',
@@ -15,39 +19,6 @@ const options = getopts(process.argv.slice(2), {
 function panic (error) {
   console.log(`Got an unexpected error:\n ${error}`)
 }
-
-git.getRemotes(true, (err, remotes) => {
-  if (err) {
-    return panic(err)
-  }
-  let remote = '/'
-  if (remotes && remotes[0] && remotes[0].refs && remotes[0].refs.fetch) {
-    remote = remotes[0].refs.fetch
-  }
-  git.log((err, result) => {
-    if (err) {
-      return panic(err)
-    }
-    result.all.reverse()
-    const list = []
-    result.all.forEach(log => {
-      log.commitUrl = getCommitUrl(remote, log.hash)
-      log.date = formatDate(log.date)
-      list.push(log)
-
-      if (log.refs && log.refs.indexOf('tag') > -1) {
-        log.isTag = true
-        list.forEach(item => {
-          if (item.refs === '') {
-            item.refs = log.refs
-          }
-        })
-      }
-    })
-    const content = listToString(list.reverse())
-    writeOutput(content)
-  })
-})
 
 function writeOutput (output) {
   if (options.out === 'STDOUT') {
@@ -94,3 +65,36 @@ function listToString (list) {
     })
   return str
 }
+
+git.getRemotes(true, (err, remotes) => {
+  if (err) {
+    return panic(err)
+  }
+  let remote = '/'
+  if (remotes && remotes[0] && remotes[0].refs && remotes[0].refs.fetch) {
+    remote = remotes[0].refs.fetch
+  }
+  git.log((err, result) => {
+    if (err) {
+      return panic(err)
+    }
+    result.all.reverse()
+    const list = []
+    result.all.forEach(log => {
+      log.commitUrl = getCommitUrl(remote, log.hash)
+      log.date = formatDate(log.date)
+      list.push(log)
+
+      if (log.refs && log.refs.indexOf('tag') > -1) {
+        log.isTag = true
+        list.forEach(item => {
+          if (item.refs === '') {
+            item.refs = log.refs
+          }
+        })
+      }
+    })
+    const content = listToString(list.reverse())
+    writeOutput(content)
+  })
+})
