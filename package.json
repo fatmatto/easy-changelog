@@ -1,5 +1,5 @@
 {
-  "name": "simple-changelog",
+  "name": "easy-changelog",
   "version": "1.0.0",
   "description": "Simple utility to generate a changelog markdown file from git commits and tags",
   "main": "index.js",
@@ -7,7 +7,7 @@
     "index.js"
   ],
   "bin":{
-    "simple-changelog":"index.js"
+    "easy-changelog":"index.js"
   },
   "scripts": {
     "lint": "npx eslint index.js --fix"
