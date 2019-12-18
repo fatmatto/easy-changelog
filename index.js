@@ -1,12 +1,20 @@
 const git = require('simple-git')(process.cwd())
+const getopts = require('getopts')
+const fs = require('fs')
+const path = require('path')
+const options = getopts(process.argv.slice(2), {
+  alias: {
+    help: 'h',
+    out: 'o'
+  },
+  default: {
+    out: 'STDOUT'
+  }
+})
 
 function panic (error) {
   console.log(`Got an unexpected error:\n ${error}`)
 }
-
-
-
-
 
 git.getRemotes(true, (err, remotes) => {
   if (err) {
@@ -21,7 +29,6 @@ git.getRemotes(true, (err, remotes) => {
       return panic(err)
     }
     result.all.reverse()
-
     const list = []
     result.all.forEach(log => {
       log.commitUrl = getCommitUrl(remote, log.hash)
@@ -37,10 +44,23 @@ git.getRemotes(true, (err, remotes) => {
         })
       }
     })
-    console.log(listToString(list.reverse()))
+    const content = listToString(list.reverse())
+    writeOutput(content)
   })
 })
 
+function writeOutput (output) {
+  if (options.out === 'STDOUT') {
+    console.log(output)
+  } else {
+    let filepath = options.out
+    if (!path.isAbsolute(filepath)) {
+      filepath = path.join(process.cwd(), filepath)
+    }
+    console.log('Generating output to ' + filepath)
+    fs.writeFileSync(options.out, output)
+  }
+}
 
 function formatDate (dateString) {
   const d = new Date(dateString)
@@ -65,9 +85,10 @@ function listToString (list) {
       return item.refs !== '' && item.refs.match(new RegExp(/\d\.\d\.\d/))
     })
     .forEach(item => {
-      if (currentTag !== item.refs) {
-        str += `# ${refsToHeader(item.refs)} (${item.date})\n`
-        currentTag = item.refs
+      const newRef = item.refs.match(new RegExp(/\d\.\d\.\d/))[0]
+      if (currentTag !== newRef) {
+        str += `# ${refsToHeader(newRef)} (${item.date})\n`
+        currentTag = newRef
       }
       str += `- [${item.hash.substr(0, 5)}](${item.commitUrl})  ${item.message}\n`
     })
