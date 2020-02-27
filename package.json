@@ -1,13 +1,13 @@
 {
   "name": "easy-changelog",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Simple utility to generate a changelog markdown file from git commits and tags",
   "main": "index.js",
   "files": [
     "index.js"
   ],
-  "bin":{
-    "easy-changelog":"index.js"
+  "bin": {
+    "easy-changelog": "index.js"
   },
   "scripts": {
     "lint": "npx eslint index.js --fix"
@@ -18,7 +18,7 @@
     "url": "https://github.com/fatmatto"
   },
   "repository": {
-    "type":"git",
+    "type": "git",
     "url": "https://github.com/fatmatto/simple-changelog.git"
   },
   "keywords": [
