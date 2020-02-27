@@ -44,13 +44,16 @@ function refsToHeader (refs) {
 }
 
 function getCommitUrl (remote, hash) {
-  return remote.replace('.git', '/commit/' + hash)
+  if (remote.indexOf('.git') > -1) {
+    return remote.replace('.git', '/commit/' + hash)
+  } else {
+    return remote + '/commit/' + hash
+  }
 }
 
 function listToString (list) {
   let str = ''
   let currentTag = ''
-
   list
     .filter(item => {
       return item.refs !== '' && item.refs.match(new RegExp(/\d\.\d\.\d/))
